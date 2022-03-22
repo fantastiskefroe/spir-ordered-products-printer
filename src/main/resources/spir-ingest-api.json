@@ -11,6 +11,29 @@
     }
   ],
   "paths": {
+    "/webhook/order-updated": {
+      "post": {
+        "tags": [
+          "shopify-webhook-controller"
+        ],
+        "operationId": "updateOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/webhook/order-created": {
       "post": {
         "tags": [
@@ -21,7 +44,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/OrderDTO"
+                "$ref": "#/components/schemas/CreateOrderDTO"
               }
             }
           },
@@ -48,10 +71,10 @@
             "schema": {
               "type": "string",
               "enum": [
-                "fulfilled",
-                "partial",
-                "null",
-                "restocked"
+                "NULL",
+                "FULFILLED",
+                "PARTIAL",
+                "RESTOCKED"
               ]
             }
           }
@@ -62,10 +85,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Order"
-                  }
+                  "$ref": "#/components/schemas/OrderDTOList"
                 }
               }
             }
@@ -76,7 +96,7 @@
   },
   "components": {
     "schemas": {
-      "OrderDTO": {
+      "CreateOrderDTO": {
         "required": [
           "created_at",
           "financial_status",
@@ -112,9 +132,9 @@
           "fulfillment_status": {
             "type": "string",
             "enum": [
+              "null",
               "fulfilled",
               "partial",
-              "null",
               "restocked"
             ]
           },
@@ -141,7 +161,7 @@
           "line_items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/OrderLineDTO"
+              "$ref": "#/components/schemas/CreateOrderLineDTO"
             }
           },
           "created_at": {
@@ -157,7 +177,7 @@
           }
         }
       },
-      "OrderLineDTO": {
+      "CreateOrderLineDTO": {
         "required": [
           "quantity",
           "sku",
@@ -185,10 +205,11 @@
           }
         }
       },
-      "Order": {
+      "OrderDTO": {
         "required": [
           "createdDateTime",
           "financialStatus",
+          "fulfillmentStatus",
           "name",
           "number",
           "orderLines",
@@ -216,32 +237,32 @@
           "cancelReason": {
             "type": "string",
             "enum": [
-              "customer",
-              "fraud",
-              "inventory",
-              "declined",
-              "other"
+              "CUSTOMER",
+              "FRAUD",
+              "INVENTORY",
+              "DECLINED",
+              "OTHER"
             ]
           },
           "financialStatus": {
             "type": "string",
             "enum": [
-              "pending",
-              "authorized",
-              "partially_paid",
-              "paid",
-              "partially_refunded",
-              "refunded",
-              "voided"
+              "PENDING",
+              "AUTHORIZED",
+              "PARTIALLY_PAID",
+              "PAID",
+              "PARTIALLY_REFUNDED",
+              "REFUNDED",
+              "VOIDED"
             ]
           },
           "fulfillmentStatus": {
             "type": "string",
             "enum": [
-              "fulfilled",
-              "partial",
-              "null",
-              "restocked"
+              "NULL",
+              "FULFILLED",
+              "PARTIAL",
+              "RESTOCKED"
             ]
           },
           "totalDiscount": {
@@ -267,7 +288,7 @@
           "orderLines": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/OrderLine"
+              "$ref": "#/components/schemas/OrderLineDTO"
             }
           },
           "createdDateTime": {
@@ -276,7 +297,21 @@
           }
         }
       },
-      "OrderLine": {
+      "OrderDTOList": {
+        "required": [
+          "orders"
+        ],
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderDTO"
+            }
+          }
+        }
+      },
+      "OrderLineDTO": {
         "required": [
           "quantity",
           "sku",
