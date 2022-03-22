@@ -22,6 +22,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -42,13 +43,11 @@ public class PrintOrderedProductsTask {
 
     }
 
-    private int i = 0;
     private static final Logger log = LogManager.getLogger(PrintOrderedProductsTask.class);
 
-//    @Scheduled(cron = "0 0 12 * * MON-FRI")
+    //    @Scheduled(cron = "0 0 12 * * MON-FRI")
     @Scheduled(cron = "${app.print-schedule}")
-    public void reportCurrentTime() throws IOException {
-
+    public void printOrderedProducts() {
         OrderControllerApi client = new OrderControllerApi();
         client.getApiClient().setBasePath(applicationProperties.orderApi().baseUri());
 
@@ -56,8 +55,8 @@ public class PrintOrderedProductsTask {
                 .collectList()
                 .map(this::ordersToOrderlines)
                 .map(this::orderlinesToHtmlTable)
-                .doOnError(throwable -> log.error("API failed: "+throwable.getMessage()))
-                .onErrorResume(throwable -> Mono.just("<h1>Failed to connect to database</h1><p class=\"exception\">"+throwable.getMessage()+"</p>"))
+                .doOnError(throwable -> log.error("API failed: " + throwable.getMessage()))
+                .onErrorResume(throwable -> Mono.just("<h1>Failed to connect to database</h1><p class=\"exception\">" + throwable.getMessage() + "</p>"))
                 .subscribe(this::printHtml);
 
     }
@@ -70,8 +69,11 @@ public class PrintOrderedProductsTask {
                 .collect(Collectors.groupingBy(OrderLine::getSku))
                 .values().stream()
                 .map(orderLines -> orderLines.stream()
-                        .reduce((a,b) -> {a.setQuantity(a.getQuantity() + b.getQuantity()); return a;})
-                ).map(maybeLine -> maybeLine.orElseThrow())
+                        .reduce((a, b) -> {
+                            a.setQuantity(a.getQuantity() + b.getQuantity());
+                            return a;
+                        })
+                ).map(Optional::orElseThrow)
                 .toList();
     }
 
@@ -101,17 +103,17 @@ public class PrintOrderedProductsTask {
             pdfBuilder.withHtmlContent(html, "/");
             pdfBuilder.toStream(os);
             pdfBuilder.run();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         final SSHClient sshClient = new SSHClient();
         try {
-            sshClient.setConnectTimeout(5);
+            sshClient.setConnectTimeout(10);
             sshClient.addHostKeyVerifier(new PromiscuousVerifier());
-            final KeyProvider keyProvider = sshClient.loadKeys(applicationProperties.printServer().privateKey(), null, null);
+
+            log.info("Loading key from " + new File(applicationProperties.printServer().privateKeyPath()).getAbsolutePath());
+            final KeyProvider keyProvider = sshClient.loadKeys(new File(applicationProperties.printServer().privateKeyPath()).getAbsolutePath());
             sshClient.connect(applicationProperties.printServer().host());
             sshClient.authPublickey(applicationProperties.printServer().username(), keyProvider);
             sshClient.newSCPFileTransfer().upload(new InMemoryFileFromString(os), applicationProperties.printServer().printerPath());
@@ -123,8 +125,6 @@ public class PrintOrderedProductsTask {
                 fs.write(os.toByteArray());
                 fs.flush();
                 fs.close();
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
