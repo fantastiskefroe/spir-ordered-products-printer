@@ -1,0 +1,9 @@
+{% extends "A4" %}
+
+{% block title %} Error {% endblock %}
+
+{% block content %}
+	<h1>Exception: </h1>
+	<p>{{ message }}</p>
+	<pre>{{ trace }}</pre>
+{% endblock %}

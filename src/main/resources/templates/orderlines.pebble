@@ -1,0 +1,59 @@
+{% extends "A4" %}
+
+{% block title %} Order Lines {% endblock %}
+
+{% block style %}
+
+
+@page {
+  @bottom-right {
+    content: 'Page ' counter(page) ' of ' counter(pages);
+  }
+}
+
+
+table {
+  width: 100%;
+  font-size: 16px;
+  border-collapse: collapse;
+
+  /* The magical table pagination property. */
+  -fs-table-paginate: paginate;
+
+  /* Recommended to avoid leaving thead on a page by itself. */
+  -fs-page-break-min-height: 1.5cm;
+}
+tr, thead, tfoot {
+  page-break-inside: avoid;
+}
+td, th {
+  padding: 6px;
+  border: 1px solid gray;
+}
+tfoot td {
+  background-color: aqua;
+}
+thead th {
+  background-color: coral;
+}
+
+html {
+  font-family: sans-serif;
+}
+
+.align-right { text-align: right; }
+.monospace {
+  font-family: monospace;
+}
+{% endblock %}
+
+{% block content %}
+	<table>
+	    <thead><tr><th>Sku</th><th>Title</th><th>Quantity</th></tr></thead>
+	    <tbody>
+        {% for line in orderLines %}
+            <tr><td class="monospace">{{ line.sku }}</td><td>{{ line.title }}</td><td class="align-right">{{ line.quantity }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

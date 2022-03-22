@@ -1,0 +1,10 @@
+spring.main.web-application-type: none
+app:
+  print-schedule: "*/10 * * * * *"
+  order-api:
+    base-uri: "http://localhost:8080"
+  print-server:
+    host: "localhost"
+    username: "root"
+    private-key:  "-----BEGIN OPENSSH PRIVATE KEY-----\nfoobar\n-----END OPENSSH PRIVATE KEY-----\n"
+    printer-path: "/print/"
