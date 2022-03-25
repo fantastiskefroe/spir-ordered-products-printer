@@ -6,8 +6,9 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
 import com.openhtmltopdf.util.XRLog;
 import dk.fantastiskefroe.spir.client.ingest.api.OrderControllerApi;
-import dk.fantastiskefroe.spir.client.ingest.model.Order;
-import dk.fantastiskefroe.spir.client.ingest.model.OrderLine;
+import dk.fantastiskefroe.spir.client.ingest.model.OrderDTO;
+import dk.fantastiskefroe.spir.client.ingest.model.OrderDTOList;
+import dk.fantastiskefroe.spir.client.ingest.model.OrderLineDTO;
 import dk.fantastiskefroe.spir.orderedproductsprinter.config.ApplicationProperties;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
@@ -52,7 +53,6 @@ public class PrintOrderedProductsTask {
         client.getApiClient().setBasePath(applicationProperties.orderApi().baseUri());
 
         client.getOrders("NULL")
-                .collectList()
                 .map(this::ordersToOrderlines)
                 .map(this::orderlinesToHtmlTable)
                 .doOnError(throwable -> log.error("API failed: " + throwable.getMessage()))
@@ -62,11 +62,12 @@ public class PrintOrderedProductsTask {
     }
 
 
-    private List<OrderLine> ordersToOrderlines(List<Order> orders) {
+    private List<OrderLineDTO> ordersToOrderlines(OrderDTOList orderList) {
+        final List<OrderDTO> orders = orderList.getOrders();
         log.info("got " + orders.size() + " orders");
         return orders.stream()
                 .flatMap(order -> order.getOrderLines().stream())
-                .collect(Collectors.groupingBy(OrderLine::getSku))
+                .collect(Collectors.groupingBy(OrderLineDTO::getSku))
                 .values().stream()
                 .map(orderLines -> orderLines.stream()
                         .reduce((a, b) -> {
@@ -77,7 +78,7 @@ public class PrintOrderedProductsTask {
                 .toList();
     }
 
-    private String orderlinesToHtmlTable(List<OrderLine> orderLines) {
+    private String orderlinesToHtmlTable(List<OrderLineDTO> orderLines) {
         PebbleTemplate template = pebbleEngine.getTemplate("orderlines");
         Map<String, Object> context = new HashMap<>();
         context.put("orderLines", orderLines.stream().map(line ->
