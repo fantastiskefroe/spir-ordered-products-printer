@@ -110,7 +110,6 @@ public class PrintOrderedProductsTask {
 
         final SSHClient sshClient = new SSHClient();
         try {
-            sshClient.setConnectTimeout(10);
             sshClient.addHostKeyVerifier(new PromiscuousVerifier());
 
             log.info("Loading key from " + new File(applicationProperties.printServer().privateKeyPath()).getAbsolutePath());
