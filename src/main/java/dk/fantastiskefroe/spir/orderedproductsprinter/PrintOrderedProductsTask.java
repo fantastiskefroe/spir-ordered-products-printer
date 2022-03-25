@@ -119,7 +119,7 @@ public class PrintOrderedProductsTask {
             sshClient.newSCPFileTransfer().upload(new InMemoryFileFromString(os), applicationProperties.printServer().printerPath());
         }
         catch (IOException e) {
-            log.error("Failed to print file. Saving locally instead");
+            log.error("Failed to print file. Saving locally instead", e);
             try {
                 OutputStream fs = new FileOutputStream(new File("./orderedProducts.pdf").getAbsolutePath());
                 fs.write(os.toByteArray());
