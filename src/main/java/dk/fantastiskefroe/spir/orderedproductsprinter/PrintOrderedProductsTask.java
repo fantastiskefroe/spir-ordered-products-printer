@@ -20,10 +20,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -81,6 +79,7 @@ public class PrintOrderedProductsTask {
     private String orderlinesToHtmlTable(List<OrderLineDTO> orderLines) {
         PebbleTemplate template = pebbleEngine.getTemplate("orderlines");
         Map<String, Object> context = new HashMap<>();
+        context.put("date", Instant.now());
         context.put("orderLines", orderLines.stream().map(line ->
                 Map.ofEntries(
                         Map.entry("sku", line.getSku()),
