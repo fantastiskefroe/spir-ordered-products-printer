@@ -52,6 +52,7 @@ public class PrintOrderedProductsTask {
 
         client.getOrders("NULL")
                 .map(this::ordersToOrderlines)
+                .map(orderlines -> orderlines.stream().filter(orderline -> orderline.getSku().charAt(0) > 'F').collect(Collectors.toList()))
                 .map(this::orderlinesToHtmlTable)
                 .doOnError(throwable -> log.error("API failed: " + throwable.getMessage()))
                 .onErrorResume(throwable -> Mono.just("<h1>Failed to connect to database</h1><p class=\"exception\">" + throwable.getMessage() + "</p>"))
