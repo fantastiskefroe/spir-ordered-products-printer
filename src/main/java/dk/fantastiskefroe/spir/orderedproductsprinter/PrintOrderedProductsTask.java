@@ -74,6 +74,7 @@ public class PrintOrderedProductsTask {
                             return a;
                         })
                 ).map(Optional::orElseThrow)
+                .sorted(Comparator.comparing(OrderLineDTO::getSku))
                 .toList();
     }
 
