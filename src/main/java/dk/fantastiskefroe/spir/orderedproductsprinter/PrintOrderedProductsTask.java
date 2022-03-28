@@ -20,10 +20,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -54,6 +52,7 @@ public class PrintOrderedProductsTask {
 
         client.getOrders("NULL")
                 .map(this::ordersToOrderlines)
+                .map(orderlines -> orderlines.stream().filter(orderline -> orderline.getSku().charAt(0) > 'F').collect(Collectors.toList()))
                 .map(this::orderlinesToHtmlTable)
                 .doOnError(throwable -> log.error("API failed: " + throwable.getMessage()))
                 .onErrorResume(throwable -> Mono.just("<h1>Failed to connect to database</h1><p class=\"exception\">" + throwable.getMessage() + "</p>"))
@@ -75,12 +74,14 @@ public class PrintOrderedProductsTask {
                             return a;
                         })
                 ).map(Optional::orElseThrow)
+                .sorted(Comparator.comparing(OrderLineDTO::getSku))
                 .toList();
     }
 
     private String orderlinesToHtmlTable(List<OrderLineDTO> orderLines) {
         PebbleTemplate template = pebbleEngine.getTemplate("orderlines");
         Map<String, Object> context = new HashMap<>();
+        context.put("date", Instant.now());
         context.put("orderLines", orderLines.stream().map(line ->
                 Map.ofEntries(
                         Map.entry("sku", line.getSku()),
