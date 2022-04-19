@@ -31,16 +31,16 @@ tr, thead, tfoot {
 }
 td, th {
   padding: 0.1rem;
-  border: 1px solid gray;
+  border: 1px solid #444444;
 }
 tfoot td {
   /* background-color: aqua; */
 }
 thead th {
-  background-color: #DDDDDD;
-  border-bottom: 2px solid gray;
+  background-color: #CCCCCC;
+  border-bottom: 2px solid #444444;
 }
-tr:nth-child(even) {background-color: #f2f2f2;}
+tr:nth-child(even) {background-color: #DDDDDD;}
 
 
 html {
