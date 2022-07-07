@@ -10,11 +10,16 @@
     </parent>
     <groupId>dk.fantastiskefroe.spir</groupId>
     <artifactId>OrderedProductsPrinter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.0</version>
     <name>OrderedProductsPrinter</name>
     <description>OrderedProductsPrinter</description>
     <properties>
         <java.version>17</java.version>
+             
+        <!--suppress UnresolvedMavenProperty -->
+        <version.number>${git.commit.time}.${git.commit.id.abbrev}</version.number>
+
+        <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>             
         <openhtml.version>1.0.10</openhtml.version>
     </properties>
     <dependencies>
@@ -137,15 +142,48 @@
             </plugin>
 
             <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>${git-commit-id-maven-plugin.version}</version>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties
+                    </generateGitPropertiesFilename>
+                    <dateFormatTimeZone>Europe/Copenhagen</dateFormatTimeZone>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>git.commit.time</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.1</version>
                 <configuration>
+                    <from>
+                        <image>ibm-semeru-runtimes:open-17-jre</image>
+                    </from>
                     <to>
                         <image>ghcr.io/fantastiskefroe/spir-ordered-products-printer</image>
+                        <tags>
+                            <tag>${version.number}</tag>
+                        </tags>
                     </to>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
