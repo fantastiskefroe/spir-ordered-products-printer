@@ -17,7 +17,7 @@
         <java.version>17</java.version>
              
         <!--suppress UnresolvedMavenProperty -->
-        <version.number>${git.commit.time}.${git.commit.id.abbrev}</version.number>
+        <version.number>${git.commit.time}--${git.commit.id.abbrev}</version.number>
 
         <git-commit-id-maven-plugin.version>5.0.0</git-commit-id-maven-plugin.version>             
         <openhtml.version>1.0.10</openhtml.version>
@@ -149,7 +149,7 @@
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties
                     </generateGitPropertiesFilename>
-                    <dateFormat>yyyy-MM-dd't'HH:mm:ss</dateFormat>
+                    <dateFormat>yyyy-MM-dd--HH-mm-ss</dateFormat>
                     <dateFormatTimeZone>Europe/Copenhagen</dateFormatTimeZone>
                     <includeOnlyProperties>
                         <includeOnlyProperty>git.commit.time</includeOnlyProperty>
