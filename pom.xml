@@ -149,7 +149,7 @@
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties
                     </generateGitPropertiesFilename>
-                    <dateFormat>yyyy-MM-dd't'HH-mm-ssZ</dateFormat>
+                    <dateFormat>yyyy-MM-dd't'HH:mm:ss</dateFormat>
                     <dateFormatTimeZone>Europe/Copenhagen</dateFormatTimeZone>
                     <includeOnlyProperties>
                         <includeOnlyProperty>git.commit.time</includeOnlyProperty>
